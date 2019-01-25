@@ -24,10 +24,14 @@ public class Game implements Runnable {
 		System.out.println(encryptedMsg);
 		System.out.println(cipher.decrypt(encryptedMsg));
 		
-		/*while(running){
-			
+		while(running){
+			try {
+				thread.sleep(5000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
 		}
-		*/
+		
 	}
 	
 	public synchronized void start(){
