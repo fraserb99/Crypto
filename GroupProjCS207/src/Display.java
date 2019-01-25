@@ -16,11 +16,7 @@ public class Display extends JFrame implements ActionListener{
 	private ArrayList<JTextField> textArray = new ArrayList<JTextField>();
 	private String sentence = "The quick brown fox jumped over the lazy dog";
 	private String[] parsedSentence;
-	textPane.addKeyListener(new KeyAdapter() {
-		@Override
-		public void keyTyped(KeyEvent arg0) {
-		}
-	});
+	
 	
 	public Display() {
 		setTitle("Test GUI");
