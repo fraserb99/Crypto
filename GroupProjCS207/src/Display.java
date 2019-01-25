@@ -20,10 +20,7 @@ public class Display extends JFrame implements ActionListener{
 	private ArrayList<JTextField> textArray = new ArrayList<JTextField>();
 	private String sentence = "The quick brown fox jumped over the lazy dog";
 	private String[] parsedSentence;
-<<<<<<< HEAD
-=======
-	
->>>>>>> branch 'master' of https://github.com/fraserb99/Crypto.git
+
 	
 	public Display() {
 		setTitle("Test GUI");
