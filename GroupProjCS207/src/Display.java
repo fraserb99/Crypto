@@ -13,14 +13,16 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import javafx.scene.layout.Border;
+
 public class Display extends JFrame implements ActionListener{
 
 	private ArrayList<JTextField> textArray = new ArrayList<JTextField>();
-	private String sentence = "THE QUICK BROWN FOX JUMPED OVER THE LAZY DOG";
+	private String sentence = "The quick brown fox jumped over the lazy dog";
 	private String[] parsedSentence;
 
-	private String concatSentence = concat(parsedSentence);
 
+	//private String concatSentence = concat(parsedSentence);
 	
 	public Display() {
 		setTitle("Test GUI");
@@ -34,6 +36,7 @@ public class Display extends JFrame implements ActionListener{
 				panel.setSize(new Dimension(40,80));
 				JTextField temp = new JTextField(1);
 				JLabel label = new JLabel();
+				
 				//label.setLabelFor(temp);
 				label.setText(parsedSentence[i].substring(c, c+1));
 				temp.setVisible(true);
@@ -67,18 +70,6 @@ public class Display extends JFrame implements ActionListener{
 	public void parseSentence() {
 		 parsedSentence = sentence.split(" ");
 	}
-	
-	public void update() {
-		String delim;
-	}
-	
-	public String concat(String[] s) {
-		String sOut = "";
-		for (int i=0;i<s.length;i++) {
-			sOut += s[i];
-		}
-		return sOut;
-	}
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
@@ -87,11 +78,7 @@ public class Display extends JFrame implements ActionListener{
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
-			int i = textArray.indexOf(e.getSource());
-			char c = concatSentence.charAt(i);
-			for (int x=0;i<concatSentence.length();x++) {
-				
-			}
+		
 		
 	}
 	
