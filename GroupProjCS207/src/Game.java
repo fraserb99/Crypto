@@ -5,16 +5,13 @@ public class Game implements Runnable {
 	public static boolean running;
 	Display display;
 	Cipher cipher;
-	String TITLE = "CRYPTOGRAM";
-	int WIDTH = 800;
-	int HEIGHT = 600;
 	
 	public Game(){
 		start();
 	}
 	
 	private void init(){
-		display = new Display(TITLE, WIDTH, HEIGHT);
+		display = new Display();
 	}
 	
 	@Override

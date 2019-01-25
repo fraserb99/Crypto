@@ -1,58 +1,61 @@
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Font;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
-import javax.swing.BorderFactory;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.JTextPane;
-import javax.swing.border.TitledBorder;
 
-public class Display {
+public class Display extends JFrame implements ActionListener{
 
-	JFrame frame;
-	JPanel panel;
-	String title;
-	int width;
-	int height;
-
-	JTextPane cryptedText;
-
-	public Display(String title, int width, int height) {
-		frame = new JFrame();
-		this.title = title;
-		this.width = width;
-		this.height = height;
-
-		createDisplay();
+	private ArrayList<JTextField> textArray = new ArrayList<JTextField>();
+	private String sentence = "The quick brown fox jumped over the lazy dog";
+	private String[] parsedSentence;
+	
+	
+	public Display() {
+		setTitle("Test GUI");
+		setLayout(new FlowLayout());
+		
+		parseSentence();
+		
+		for (int i=0;i<parsedSentence.length;i++) {
+			for (int c=0;c<parsedSentence[i].length();c++) {
+				JTextField temp = new JTextField(parsedSentence[i].substring(c, c+1));
+				if (c==0 && i!=0) {
+					JPanel separator = new JPanel();
+					separator.setSize(new Dimension(5, 15));
+					add(separator);
+				}
+				temp.setMargin(new Insets(5,5,5,5));
+				textArray.add(temp);
+				add(temp);
+			}
+			
+		}
+		
+		
+		
+		setSize(1000, 1200);
+		setVisible(true);
+	}
+	
+	public void parseSentence() {
+		 parsedSentence = sentence.split(" ");
 	}
 
-	private void createDisplay() {
-		frame.setTitle(title);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(width, height);
-		frame.setVisible(true);
-		frame.setLocationRelativeTo(null);
-		frame.setResizable(false);
-		panel = new JPanel();
-		panel.setLayout(null);
-		panel = new JPanel();
-		panel.setBounds(0, (int) (frame.getHeight() * 0.01), (int) (frame.getWidth() * 0.6),
-				(int) (frame.getHeight() * 0.8));
-		frame.getContentPane().add(panel);
-		panel.setLayout(new BorderLayout(0, 0));
+	public static void main(String[] args) {
+		// TODO Auto-generated method stub
+		Display gui = new Display();
+	}
 
-		cryptedText = new JTextPane();
-		cryptedText.setForeground(new Color(0, 0, 0));
-		cryptedText.setFont(new Font("Tahoma", Font.PLAIN, 18));
-
-		cryptedText.setEditable(false);
-		panel.add(cryptedText, BorderLayout.CENTER);
-		TitledBorder title;
-		title = BorderFactory.createTitledBorder("Encrypted Text");
-		panel.setBorder(title);
-
+	@Override
+	public void actionPerformed(ActionEvent arg0) {
+		
+		
 	}
 
 }
