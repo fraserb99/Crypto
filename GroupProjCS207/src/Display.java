@@ -13,12 +13,15 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import javafx.scene.layout.Border;
+
 public class Display extends JFrame implements ActionListener{
 
 	private ArrayList<JTextField> textArray = new ArrayList<JTextField>();
-	private String sentence = "THE QUICK BROWN FOX JUMPED OVER THE LAZY DOG";
+	private String sentence = "The quick brown fox jumped over the lazy dog";
 	private String[] parsedSentence;
 	private String concatSentence = "THEQUICKBROWNFOXJUMPEDOVERTHELAZYDOG";
+
 	
 	public Display() {
 		setTitle("Test GUI");
@@ -33,6 +36,7 @@ public class Display extends JFrame implements ActionListener{
 				panel.setSize(new Dimension(40,80));
 				JTextField temp = new JTextField(1);
 				JLabel label = new JLabel();
+				
 				//label.setLabelFor(temp);
 				label.setText(parsedSentence[i].substring(c, c+1));
 				temp.setVisible(true);
@@ -68,6 +72,7 @@ public class Display extends JFrame implements ActionListener{
 	public void parseSentence() {
 		 parsedSentence = sentence.split(" ");
 	}
+
 	
 	public void updateText(KeyEvent ke) {
 		int i = textArray.indexOf(ke.getSource());
@@ -87,12 +92,14 @@ public class Display extends JFrame implements ActionListener{
 		return sOut;
 	}
 
+
 	public static void main(String[] args) {
 		Display gui = new Display();
 	}
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
+
 	}
 	
 		
