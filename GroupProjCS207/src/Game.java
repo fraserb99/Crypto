@@ -20,9 +20,9 @@ public class Game implements Runnable {
 		init();
 		
 		cipher = new Cipher();
-		String encryptedMsg = cipher.encrypt("Fraser is so berted");
+		String encryptedMsg = cipher.encrypt("Fraser! is so #berted");
 		System.out.println(encryptedMsg);
-		System.out.println(cipher.decrypt(encryptedMsg));
+		System.out.println(cipher.getOriginalText());
 		
 		while(running){
 			try {
