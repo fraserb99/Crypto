@@ -12,7 +12,6 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.text.JTextComponent;
 
 public class Display extends JFrame implements ActionListener{
 
@@ -89,7 +88,6 @@ public class Display extends JFrame implements ActionListener{
 	}
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		Display gui = new Display();
 	}
 
