@@ -1,7 +1,8 @@
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Cipher {
+public class Cipher implements Serializable {
 	
 	char[] mappingCharacterSet = new char[]{ 'A','B','C','D','E','F','G','H','I','J','K',
 			'L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z','0','1','2'
@@ -23,6 +24,10 @@ public class Cipher {
 	
 	public String getOriginalText(){
 		return originalText;
+	}
+	
+	public void setOriginalText(String s) {
+		originalText = s;
 	}
 	
 	private void fillIndexes(){
@@ -96,5 +101,5 @@ public class Cipher {
 			
 		}
 		return newString;
-	} */
+	}*/
 }
