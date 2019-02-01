@@ -22,14 +22,13 @@ public class GameState implements Serializable {
 		return userGuess;
 	}
 	
-	public void save() {
+	public void save(String filename) {
 		try {
-	         FileOutputStream fOut = new FileOutputStream("save_games.ser");
+	         FileOutputStream fOut = new FileOutputStream(filename + ".ser");
 	         ObjectOutputStream objOut = new ObjectOutputStream(fOut);
 	         objOut.writeObject(this);
 	         objOut.close();
 	         fOut.close();
-	         System.out.printf("Serialized data is saved in /src/save_games.ser");
 	      } catch (IOException e) {
 	         e.printStackTrace();
 	      }
