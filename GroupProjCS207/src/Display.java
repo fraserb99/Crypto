@@ -26,11 +26,12 @@ import javax.swing.JTextField;
 
 public class Display extends JFrame implements ActionListener{
 	
+	private Game game;
 	private JPanel textPanel;
 	private JPanel scorePanel;
 	private ArrayList<JTextField> textArray = new ArrayList<JTextField>();
 	private ArrayList<JPanel> panelArray = new ArrayList<JPanel>();
-	private String unencrypted = "THE QUICK BROWN FOX JUMPED";
+	private String unencrypted = "YOU'RE A QUICK BROWN FOX";
 	private Cipher cipher;
 	private String sentence;
 	private String[] parsedSentence;
@@ -38,15 +39,16 @@ public class Display extends JFrame implements ActionListener{
 	private ArrayList<String> guessArray = new ArrayList<String>();
 	
 	
-	public Display() {
+	public Display(Game gameClass) {
 		setTitle("Cryptogram Game");
 		setLayout(new BorderLayout());
 		setFocusable(true);
+		game = gameClass;
 		
 		cipher = new Cipher();
 		sentence = cipher.encrypt(unencrypted);
 		cipher.setOriginalText(unencrypted);
-		concatSentence = sentence.replaceAll("\\s", "");
+		concatSentence = sentence.replaceAll("[^A-Za-z0-9]", "");
 		parseSentence();
 		
 		textPanel = new JPanel(new FlowLayout());
@@ -56,10 +58,17 @@ public class Display extends JFrame implements ActionListener{
 		
 		scorePanel = new JPanel(new GridLayout());
 		
-		for (int i=0;i<textArray.size();i++);
+		for (int i=0;i<textArray.size();i++) {
+			guessArray.add("");
+		}
 		
 		JPanel btnPanel = new JPanel(new FlowLayout());
 		add(btnPanel, BorderLayout.SOUTH);
+		
+		JButton hintButton = new JButton("Hint");
+		hintButton.addActionListener(this);
+		hintButton.setActionCommand("Hint");
+		btnPanel.add(hintButton);
 		
 		JButton checkButton = new JButton("Check");
 		checkButton.addActionListener(this);
@@ -116,12 +125,12 @@ public class Display extends JFrame implements ActionListener{
 		String filename = (String) JOptionPane.showInputDialog(null, "Choose a save", "Load Game", JOptionPane.QUESTION_MESSAGE, null, fileList, fileList[0]);
 		if (filename == null) return;
 		filepath = "Users/" + filename;
-		GameState game = readObject(filepath);
-		cipher = game.getCipher();
-		guessArray = game.getGuess();
+		GameState saveGame = readObject(filepath);
+		cipher = saveGame.getCipher();
+		guessArray = saveGame.getGuess();
 		unencrypted = cipher.getOriginalText();
 		sentence = cipher.encrypt(unencrypted);
-		concatSentence = sentence.replaceAll("\\s", "");
+		concatSentence = sentence.replaceAll("[^A-Za-z0-9]", "");
 		parseSentence();
 		
 		for (int i=0;i<panelArray.size();i++) {
@@ -140,13 +149,13 @@ public class Display extends JFrame implements ActionListener{
 	
 	public GameState readObject(String filepath) {
 		try {
-			GameState game;
+			GameState saveGame;
 			FileInputStream fIn = new FileInputStream(filepath);
 			ObjectInputStream objIn = new ObjectInputStream(fIn);
-			game = (GameState) objIn.readObject();
+			saveGame = (GameState) objIn.readObject();
 			fIn.close();
 			objIn.close();
-			return game;
+			return saveGame;
 		} catch (IOException e){
 			e.printStackTrace();
 		} catch (ClassNotFoundException e) {
@@ -164,44 +173,51 @@ public class Display extends JFrame implements ActionListener{
 				JPanel panel = new JPanel(new BorderLayout());
 				panelArray.add(panel);
 				panel.setSize(new Dimension(40,80));
-				JTextField temp = new JTextField(1);
 				JLabel label = new JLabel();
 				
-				//label.setLabelFor(temp);
-				label.setText(parsedSentence[i].substring(c, c+1));
-				temp.setVisible(true);
-				label.setVisible(true);
-				temp.addKeyListener(new KeyAdapter() {
-					@Override
-					public void keyTyped(KeyEvent e) {
-						updateText(e);
-					}
-				});
-				temp.addFocusListener(new FocusListener() {
-
-			        @Override
-			        public void focusGained(FocusEvent e) {
-			        	int i = textArray.indexOf(e.getSource());
-			    		char c = concatSentence.charAt(i);
-			    		for (int x=0;x<concatSentence.length();x++) {
-			    			if (concatSentence.charAt(x) == c) {
-			    				textArray.get(x).setBackground(Color.yellow);
-			    			}
-			    		}
-			        }
-
-			        @Override
-			        public void focusLost(FocusEvent e) {
-			        	int i = textArray.indexOf(e.getSource());
-			    		char c = concatSentence.charAt(i);
-			    		for (int x=0;x<concatSentence.length();x++) {
-			    			if (concatSentence.charAt(x) == c) {
-			    				textArray.get(x).setBackground(Color.white);
-			    			}
-			    		}
-			        }
-			    });
-				
+				if (Character.toString(parsedSentence[i].charAt(c)).matches("^[a-zA-Z0-9]*$")) {
+					JTextField temp = new JTextField(1);
+					label.setText(parsedSentence[i].substring(c, c+1));
+					temp.setVisible(true);
+					label.setVisible(true);
+					temp.addKeyListener(new KeyAdapter() {
+						@Override
+						public void keyTyped(KeyEvent e) {
+							updateText(e);
+						}
+					});
+					temp.addFocusListener(new FocusListener() {
+	
+				        @Override
+				        public void focusGained(FocusEvent e) {
+				        	int i = textArray.indexOf(e.getSource());
+				    		char c = concatSentence.charAt(i);
+				    		for (int x=0;x<concatSentence.length();x++) {
+				    			if (concatSentence.charAt(x) == c) {
+				    				textArray.get(x).setBackground(Color.yellow);
+				    			}
+				    		}
+				        }
+	
+				        @Override
+				        public void focusLost(FocusEvent e) {
+				        	int i = textArray.indexOf(e.getSource());
+				    		char c = concatSentence.charAt(i);
+				    		for (int x=0;x<concatSentence.length();x++) {
+				    			if (concatSentence.charAt(x) == c) {
+				    				textArray.get(x).setBackground(Color.white);
+				    			}
+				    		}
+				        }
+				    });
+					temp.setMargin(new Insets(5,5,5,5));
+					textArray.add(temp);
+					panel.add(temp, BorderLayout.NORTH);
+					panel.add(label, BorderLayout.CENTER);
+				} else {
+					label.setText(parsedSentence[i].substring(c, c+1));
+					panel.add(label, BorderLayout.NORTH);
+				}
 				
 				if (c==0 && i!=0) {
 					JPanel separator = new JPanel();
@@ -209,18 +225,13 @@ public class Display extends JFrame implements ActionListener{
 					textPanel.add(separator);
 					panelArray.add(separator);
 				}
-				temp.setMargin(new Insets(5,5,5,5));
-				textArray.add(temp);
-				panel.add(temp, BorderLayout.NORTH);
-				panel.add(label, BorderLayout.CENTER);
+				
 				textPanel.add(panel);
 				setVisible(true);
 				repaint();
 			}	
 		}
 	}
-
-	
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
@@ -230,6 +241,8 @@ public class Display extends JFrame implements ActionListener{
 			saveGame();
 		} else if (e.getActionCommand().equals("Load")) {
 			loadGame();
+		} else if (e.getActionCommand().equals("Hint")) {
+			
 		}
 	}
 	

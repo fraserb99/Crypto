@@ -11,7 +11,7 @@ public class Game implements Runnable {
 	}
 	
 	private void init(){
-		display = new Display();
+		display = new Display(this);
 	}
 	
 	@Override
