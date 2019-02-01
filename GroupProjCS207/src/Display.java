@@ -220,9 +220,7 @@ public class Display extends JFrame implements ActionListener{
 		}
 	}
 
-	public static void main(String[] args) {
-		Display gui = new Display();
-	}
+	
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
