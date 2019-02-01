@@ -26,6 +26,7 @@ public class Game implements Runnable {
 		
 		while(running){
 			try {
+				
 				thread.sleep(5000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();

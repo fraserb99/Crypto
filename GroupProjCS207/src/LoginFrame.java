@@ -83,7 +83,7 @@ public class LoginFrame extends JFrame {
 		passwdTxt.setColumns(10);
 
 		JSeparator separator = new JSeparator();
-		separator.setBounds(105, 190, 208, 2);
+		separator.setBounds(0, 200, 300, this.getWidth());
 		contentPane.add(separator);
 
 		
@@ -91,11 +91,11 @@ public class LoginFrame extends JFrame {
 		
 
 		JLabel lblUsername = new JLabel("Username:");
-		lblUsername.setBounds(24, 205, 82, 20);
+		lblUsername.setBounds(24, 100, 82, 20);
 		contentPane.add(lblUsername);
 
 		JLabel lblPassword = new JLabel("Password:");
-		lblPassword.setBounds(24, 268, 82, 20);
+		lblPassword.setBounds(24, 160, 82, 20);
 		contentPane.add(lblPassword);
 
 		JButton btnLogin = new JButton("Login");
@@ -112,7 +112,7 @@ public class LoginFrame extends JFrame {
 
 			}
 		});
-		btnLogin.setBounds(37, 315, 157, 29);
+		btnLogin.setBounds(37, 220, 157, 29);
 		contentPane.add(btnLogin);
 
 		JButton btnNewButton = new JButton("Create Account");
@@ -136,7 +136,7 @@ public class LoginFrame extends JFrame {
 
 			}
 		});
-		btnNewButton.setBounds(223, 315, 156, 29);
+		btnNewButton.setBounds(223, 220, 156, 29);
 		contentPane.add(btnNewButton);
 		setVisible(true);
 		contentPane.setVisible(true);

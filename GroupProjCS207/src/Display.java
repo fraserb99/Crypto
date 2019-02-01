@@ -76,7 +76,7 @@ public class Display extends JFrame implements ActionListener{
 		loadBtn.setActionCommand("Load");
 		btnPanel.add(loadBtn);
 		
-		setSize(800, 800);
+		setSize(600, 400);
 		setVisible(true);
 	}
 	
