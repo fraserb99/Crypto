@@ -125,6 +125,11 @@ public class LoginFrame extends JFrame {
 							if (!p.matcher(userTxt.getText()).find() && !p.matcher(passwdTxt.getText()).find()) {
 								
 									//create account
+								LoginHandler handler = new LoginHandler(userTxt.getText(), passwdTxt.getText());
+								if(handler.createAccount())
+									MsgBox.info("Account created!", "Success");
+								else
+									MsgBox.error("Failed to create account. Account may already exist.", "Failed");
 							} else {
 								MsgBox.error("Invalid characters in username or password! Alphanumeric only.",
 										"Input Error");
@@ -144,6 +149,13 @@ public class LoginFrame extends JFrame {
 
 	private void authenticate(String user, String password) {
 		
+		LoginHandler handler = new LoginHandler(user, password);
+		
+		if(handler.authenticate()){
+			new Game();
+			this.setVisible(false);
+		}else
+			MsgBox.error("Invalid username or password", "Login Failed");
 	}
 
 }
