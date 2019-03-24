@@ -44,14 +44,15 @@ public class Display extends JFrame implements ActionListener{
 	private String[] parsedSentence;
 	private String concatSentence;
 	private ArrayList<User> userList = new ArrayList<User>();
+	private User user;
 	
-	
-	public Display(User user) {
+	public Display( User user) {
+		
 		setTitle("Cryptogram Game");
 		setLayout(new BorderLayout());
 		setFocusable(true);
 		game = new Game(this, user);
-		
+		this.user = user;
 		setSentence();
 		
 		textPanel = new JPanel(new FlowLayout());
@@ -97,7 +98,8 @@ public class Display extends JFrame implements ActionListener{
 		addWindowListener(new java.awt.event.WindowAdapter() {
 		    @Override
 		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
-		        user.save();
+		    	
+		        save();
 		        System.exit(0);
 		    }
 		});
@@ -106,6 +108,9 @@ public class Display extends JFrame implements ActionListener{
 		setVisible(true);
 	}
 	
+	public void save(){
+		this.user.save();
+	}
 	public void setSentence() {
 		sentence = game.getSentence();
 		parsedSentence = game.getParsedSentence();
@@ -231,9 +236,10 @@ public class Display extends JFrame implements ActionListener{
 						@Override
 						public void keyPressed(KeyEvent e) {
 							//invoked later to stop text being entered twice
+							final KeyEvent eLocal = e;
 							SwingUtilities.invokeLater(new Runnable() {
 						        public void run() {
-									updateText(e);
+									updateText(eLocal);
 						        }
 						    });
 						}
