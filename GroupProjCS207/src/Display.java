@@ -15,13 +15,19 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 
 
 public class Display extends JFrame implements ActionListener{
@@ -29,43 +35,46 @@ public class Display extends JFrame implements ActionListener{
 	private Game game;
 	private JPanel textPanel;
 	private JPanel scorePanel;
+	private DefaultTableModel tableModel;
+	private JTable scoreboard;
 	private ArrayList<JTextField> textArray = new ArrayList<JTextField>();
 	private ArrayList<JPanel> panelArray = new ArrayList<JPanel>();
-	private String unencrypted = "YOU'RE A QUICK BROWN FOX";
 	private Cipher cipher;
 	private String sentence;
 	private String[] parsedSentence;
 	private String concatSentence;
-	private ArrayList<String> guessArray = new ArrayList<String>();
+	private ArrayList<User> userList = new ArrayList<User>();
 	
 	
-	public Display(Game gameClass) {
+	public Display(User user) {
 		setTitle("Cryptogram Game");
 		setLayout(new BorderLayout());
 		setFocusable(true);
-		game = gameClass;
+		game = new Game(this, user);
 		
-		cipher = new Cipher();
-		sentence = cipher.encrypt(unencrypted);
-		cipher.setOriginalText(unencrypted);
-		concatSentence = sentence.replaceAll("[^A-Za-z0-9]", "");
-		parseSentence();
+		setSentence();
 		
 		textPanel = new JPanel(new FlowLayout());
 		add(textPanel);
 		
 		generateTextFields();
 		
-		scorePanel = new JPanel(new GridLayout());
 		
-		for (int i=0;i<textArray.size();i++) {
-			guessArray.add("");
-		}
+		
+		scorePanel = new JPanel(new BorderLayout());
+		add(scorePanel, BorderLayout.EAST);
+		scorePanel.setSize(600, 600);
+		generateScoreboard();
 		
 		JPanel btnPanel = new JPanel(new FlowLayout());
 		add(btnPanel, BorderLayout.SOUTH);
 		
-		JButton hintButton = new JButton("Hint");
+		JButton undoBtn = new JButton("Undo");
+		undoBtn.addActionListener(this);
+		undoBtn.setActionCommand("Undo");
+		btnPanel.add(undoBtn);
+		
+		JButton hintButton = new JButton("Print Details");
 		hintButton.addActionListener(this);
 		hintButton.setActionCommand("Hint");
 		btnPanel.add(hintButton);
@@ -85,85 +94,123 @@ public class Display extends JFrame implements ActionListener{
 		loadBtn.setActionCommand("Load");
 		btnPanel.add(loadBtn);
 		
-		setSize(600, 400);
+		addWindowListener(new java.awt.event.WindowAdapter() {
+		    @Override
+		    public void windowClosing(java.awt.event.WindowEvent windowEvent) {
+		        user.save();
+		        System.exit(0);
+		    }
+		});
+		
+		setSize(1200, 600);
 		setVisible(true);
 	}
 	
-	public void parseSentence() {
-		 parsedSentence = sentence.split(" ");
+	public void setSentence() {
+		sentence = game.getSentence();
+		parsedSentence = game.getParsedSentence();
+		concatSentence = game.getConcatSentence();
 	}
 
-	
 	public void updateText(KeyEvent ke) {
 		int i = textArray.indexOf(ke.getSource());
 		char c = concatSentence.charAt(i);
+		String guess = textArray.get(i).getText().toUpperCase();
+		guess = Character.toString(ke.getKeyChar()).toUpperCase();
+		String previous = game.getPreviousChar(c);
+		if (!guess.matches("[A-Z]")) {
+			guess = "";
+		} else {
+			Action action = new Action(guess, c, previous);
+			game.newGuess(action);
+		}
+		textArray.get(i).setText("");
+		game.setGuess(c, guess);
+		
+		
 		for (int x=0;x<concatSentence.length();x++) {
 			if (concatSentence.charAt(x) == c) {
-				textArray.get(x).setText(textArray.get(i).getText().toUpperCase());
-				guessArray.set(x, textArray.get(i).getText().toUpperCase());
+				textArray.get(x).setText(guess);
 			}
 		}
 	}
 	
-	public boolean checkSolution() {
-		String userGuess = String.join("", guessArray);
-		if (cipher.encrypt(userGuess).equals(concatSentence)) {
-			return true;
-		} else return false;
-	}
-	
-	public void saveGame() {
-		GameState state = new GameState(cipher, guessArray);
-		String filename = JOptionPane.showInputDialog("Please enter a name for your save");
-		state.save("Users/" + filename);
-	}
-	
-	public void loadGame() {
-		String filepath;
-		File folder = new File("Users/");
-		String[] fileList = folder.list();
-		String filename = (String) JOptionPane.showInputDialog(null, "Choose a save", "Load Game", JOptionPane.QUESTION_MESSAGE, null, fileList, fileList[0]);
-		if (filename == null) return;
-		filepath = "Users/" + filename;
-		GameState saveGame = readObject(filepath);
-		cipher = saveGame.getCipher();
-		guessArray = saveGame.getGuess();
-		unencrypted = cipher.getOriginalText();
-		sentence = cipher.encrypt(unencrypted);
-		concatSentence = sentence.replaceAll("[^A-Za-z0-9]", "");
-		parseSentence();
-		
-		for (int i=0;i<panelArray.size();i++) {
-			textPanel.remove(panelArray.get(i));
-		}
-		
-		panelArray.clear();
-		textArray.clear();
-		
-		generateTextFields();
-		
-		for (int i=0;i<guessArray.size();i++) {
-			textArray.get(i).setText(guessArray.get(i));
+	public void updateText() {
+		char encryptedChar;
+		HashMap<Character, String> guessMap = game.getGuessMap();
+		for (int i=0;i<concatSentence.length();i++) {
+			encryptedChar = concatSentence.charAt(i);
+			textArray.get(i).setText(guessMap.get(encryptedChar));
+			System.out.println(i + " " + encryptedChar + " " + guessMap.get(encryptedChar));
 		}
 	}
 	
-	public GameState readObject(String filepath) {
-		try {
-			GameState saveGame;
-			FileInputStream fIn = new FileInputStream(filepath);
-			ObjectInputStream objIn = new ObjectInputStream(fIn);
-			saveGame = (GameState) objIn.readObject();
-			fIn.close();
-			objIn.close();
-			return saveGame;
-		} catch (IOException e){
-			e.printStackTrace();
-		} catch (ClassNotFoundException e) {
-			e.printStackTrace();
-		} catch (ClassCastException e) {
-			e.printStackTrace();
+	public void loadUsers() {
+		userList.clear();
+		File[] folders = new File("Data/Users/").listFiles();
+		if (folders != null) {
+			for(File folder : folders) {
+				if(folder.isDirectory()) {
+					try {
+						User usr;
+						FileInputStream fIn = new FileInputStream(folder.getPath() + "/account.txt");
+						ObjectInputStream objIn = new ObjectInputStream(fIn);
+						usr = (User) objIn.readObject();
+						userList.add(usr);
+						fIn.close();
+						objIn.close();
+					} catch (IOException e){
+						System.out.println("The user data is corrupt: " + folder.getPath());
+						e.printStackTrace();
+					} catch (ClassNotFoundException e) {
+						System.out.println("The user data is corrupt: " + folder.getPath());
+						e.printStackTrace();
+					} catch (ClassCastException e) {
+						System.out.println("The user data is corrupt: " + folder.getPath());
+						e.printStackTrace();
+					}
+				} else {
+					System.out.println("Unexpected file: " + folder.getPath());
+				}
+			}
+		} else {
+			JOptionPane.showMessageDialog(null, "Unable to load users");
 		}
-		return null;
+	}
+	
+	public void generateScoreboard(){
+		loadUsers();
+		if (!userList.isEmpty()) {
+			String[] colNames = {"Pos.", "Username", "Finished", "Guess %"};
+			tableModel = new DefaultTableModel(colNames,0) {
+				@Override
+			    public boolean isCellEditable(int row, int column) {
+			       return false;
+			    }
+			};
+			scoreboard = new JTable(tableModel);
+			scoreboard.setBackground(textPanel.getBackground());
+			scoreboard.setShowGrid(false);
+			scoreboard.setSize(600, 600);
+			Collections.sort(userList, Collections.reverseOrder());
+			User userObj;
+			for (int i=0;i<10 && i<userList.size();i++) {
+				userObj = userList.get(i);
+				String[] data = {
+						((Integer) (i+1)).toString(),
+						userObj.getUsername(),
+						userObj.getGamesComplete().toString(),
+						userObj.getGuessPercent().toString() + "%"};
+				tableModel.addRow(data);
+			}
+			scorePanel.add(scoreboard);
+			scorePanel.add(scoreboard.getTableHeader(), BorderLayout.NORTH);
+		} else {
+			scorePanel.add(new JTextField("No users found"));
+		}
+		for(User usr : userList) {
+			System.out.println(usr.getGamesComplete());
+		}
 	}
 	
 	public void generateTextFields() {
@@ -182,8 +229,13 @@ public class Display extends JFrame implements ActionListener{
 					label.setVisible(true);
 					temp.addKeyListener(new KeyAdapter() {
 						@Override
-						public void keyTyped(KeyEvent e) {
-							updateText(e);
+						public void keyPressed(KeyEvent e) {
+							//invoked later to stop text being entered twice
+							SwingUtilities.invokeLater(new Runnable() {
+						        public void run() {
+									updateText(e);
+						        }
+						    });
 						}
 					});
 					temp.addFocusListener(new FocusListener() {
@@ -232,20 +284,60 @@ public class Display extends JFrame implements ActionListener{
 			}	
 		}
 	}
+	
+	public void loadGame(Game newGame) {
+		game = newGame;
+		setSentence();
+		generateTextFields();
+		for (int i=0;i<panelArray.size();i++) {
+			textPanel.remove(panelArray.get(i));
+		}
+		
+		panelArray.clear();
+		textArray.clear();
+		
+		generateTextFields();
+		
+		HashMap<Character, String> guessMap = game.getGuessMap();
+		char encryptedChar;
+		for (int i=0;i<concatSentence.length();i++) {
+			encryptedChar = concatSentence.charAt(i);
+			textArray.get(i).setText(guessMap.get(encryptedChar));
+			System.out.println(i + " " + encryptedChar + " " + guessMap.get(encryptedChar));
+		}
+		System.out.println("Game loaded");
+	}
+	
+	public void undo() {
+		try {
+			Action action = game.undoPop();
+			for (int x=0;x<concatSentence.length();x++) {
+				if (concatSentence.charAt(x) == action.getEncryptedChar()) {
+					textArray.get(x).setText(action.getPreviousChar());
+				}
+			}
+			game.setGuess(action.getEncryptedChar(), action.getPreviousChar());
+		} catch (NullPointerException e) {
+			JOptionPane.showMessageDialog(null, "Nothing left to undo!");
+		}
+	}
+	
 
 	@Override
 	public void actionPerformed(ActionEvent e) {
 		if (e.getActionCommand().equals("Check")) {
-			JOptionPane.showMessageDialog(null, checkSolution());
+			JOptionPane.showMessageDialog(null, game.checkSolution());
 		} else if (e.getActionCommand().equals("Save")) {
-			saveGame();
+			game.saveGame();
 		} else if (e.getActionCommand().equals("Load")) {
-			loadGame();
+			game.loadGame(this);
 		} else if (e.getActionCommand().equals("Hint")) {
-			
+			game.printDetails();
+		} else if (e.getActionCommand().equals("Undo")) {
+			undo();
 		}
 	}
 	
-		
+	
 
 }

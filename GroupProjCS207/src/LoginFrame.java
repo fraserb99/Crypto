@@ -30,7 +30,6 @@ public class LoginFrame extends JFrame {
 
 	private JPanel contentPane;
 	private JTextField userTxt;
-	private JPasswordField passwdTxt;
 	public LoginFrame logframe;
 
 	
@@ -61,7 +60,7 @@ public class LoginFrame extends JFrame {
 		contentPane.add(userTxt);
 		userTxt.setColumns(10);
 
-		passwdTxt = new JPasswordField();
+		/*passwdTxt = new JPasswordField();
 		passwdTxt.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent key) {
@@ -80,7 +79,7 @@ public class LoginFrame extends JFrame {
 		passwdTxt.setToolTipText("");
 		passwdTxt.setBounds(105, 160, 212, 26);
 		contentPane.add(passwdTxt);
-		passwdTxt.setColumns(10);
+		passwdTxt.setColumns(10);*/
 
 		JSeparator separator = new JSeparator();
 		separator.setBounds(0, 200, 300, this.getWidth());
@@ -94,17 +93,12 @@ public class LoginFrame extends JFrame {
 		lblUsername.setBounds(24, 100, 82, 20);
 		contentPane.add(lblUsername);
 
-		JLabel lblPassword = new JLabel("Password:");
-		lblPassword.setBounds(24, 160, 82, 20);
-		contentPane.add(lblPassword);
-
 		JButton btnLogin = new JButton("Login");
 		btnLogin.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { //runs when the login button is pressed - RB
 				
-						if (userTxt.getText().length() > 0 && passwdTxt.getText().length() > 0) {
-							authenticate(userTxt.getText(),
-									passwdTxt.getText());
+						if (userTxt.getText().length() > 0) {
+							authenticate(userTxt.getText());
 						} else {
 							MsgBox.error("Invalid username or password!!", "Input Error");
 						}
@@ -119,17 +113,19 @@ public class LoginFrame extends JFrame {
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) { //runs when the Create Account button is pressed
 				
-					
-						if (userTxt.getText().length() > 0 && passwdTxt.getText().length() > 0) {
+						if (userTxt.getText().length() > 0) {
 							Pattern p = Pattern.compile("[^a-zA-Z0-9]"); //validates the username as alphanumeric
-							if (!p.matcher(userTxt.getText()).find() && !p.matcher(passwdTxt.getText()).find()) {
+							if (!p.matcher(userTxt.getText()).find()) {
 								
 									//create account
-								LoginHandler handler = new LoginHandler(userTxt.getText(), passwdTxt.getText());
-								if(handler.createAccount())
+								LoginHandler handler = new LoginHandler(userTxt.getText());
+								if(handler.createAccount()) {
 									MsgBox.info("Account created!", "Success");
-								else
+									authenticate(userTxt.getText());
+							
+								} else {
 									MsgBox.error("Failed to create account. Account may already exist.", "Failed");
+								}
 							} else {
 								MsgBox.error("Invalid characters in username or password! Alphanumeric only.",
 										"Input Error");
@@ -137,8 +133,6 @@ public class LoginFrame extends JFrame {
 						} else {
 							MsgBox.error("Invalid username or password!", "Input Error");
 						}
-					
-
 			}
 		});
 		btnNewButton.setBounds(223, 220, 156, 29);
@@ -147,12 +141,12 @@ public class LoginFrame extends JFrame {
 		contentPane.setVisible(true);
 	}
 
-	private void authenticate(String user, String password) {
+	private void authenticate(String username) {
 		
-		LoginHandler handler = new LoginHandler(user, password);
+		LoginHandler handler = new LoginHandler(username);
 		
 		if(handler.authenticate()){
-			new Game();
+			new Display(handler.getUser());
 			this.setVisible(false);
 		}else
 			MsgBox.error("Invalid username or password", "Login Failed");

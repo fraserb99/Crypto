@@ -19,9 +19,12 @@ public class Cipher implements Serializable {
 	public Cipher(){
 		fillIndexes();
 		map();
-		//printMappedChars();
+		printMappedChars();
 	}
 	
+	public char[] getMappingChars() {
+		return mappingCharacterSet;
+	}
 	public String getOriginalText(){
 		return originalText;
 	}
@@ -31,7 +34,7 @@ public class Cipher implements Serializable {
 	}
 	
 	private void fillIndexes(){
-		for(int i=0;i<36;i++){
+		for(int i=0;i<26;i++){
 			indexes.add(i);
 		
 		}
@@ -39,7 +42,7 @@ public class Cipher implements Serializable {
 	
 	private void map(){
 		int j  =0;
-		for(int i=35;i>=0;i--){
+		for(int i=25;i>=0;i--){
 			if(j<alphabet.length){
 				int randomIndex = ThreadLocalRandom.current().nextInt(0, i + 1);
 				int index = indexes.remove(randomIndex);
@@ -63,6 +66,7 @@ public class Cipher implements Serializable {
 			System.out.print(alphabet[i] + ",");
 
 		}
+		System.out.println("");
 	}
 	
 	public String encrypt(String text){

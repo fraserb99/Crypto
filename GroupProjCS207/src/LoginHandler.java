@@ -1,38 +1,38 @@
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.PrintWriter;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InvalidClassException;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+
+import javax.swing.JOptionPane;
 
 
 public class LoginHandler {
 
 	private String user;
-	private String pword;
+	private User userObj;
 
-	public LoginHandler(String user, String pword) {
+	public LoginHandler(String user) {
 
 		this.user = user;
-		this.pword = pword;
 
+	}
+	
+	public User getUser() {
+		return userObj;
 	}
 
 	public boolean authenticate() {
 
 		File f = new File("Data/Users/" + user + "/account.txt");
-		String pass = null;
 		if (f.exists() && !f.isDirectory()) {
-			try {
-				FileReader fr = new FileReader("Data/Users/" + user + "/account.txt");
-				BufferedReader br = new BufferedReader(fr);
-				pass = br.readLine();
-				br.close();
-			} catch (Exception e) {
-				System.out.println("IO error: " + e.getStackTrace());
+			userObj = readUser("Data/Users/" + user + "/account.txt");
+			if (userObj == null) {
+				return false;
 			}
-
-			if (pass.equals(pword)) {
+			if (user.equals(userObj.getUsername())) {
 				return true;
 			} else { // password incorrect
 				return false;
@@ -54,16 +54,45 @@ public class LoginHandler {
 				dir.mkdirs();
 				File account = new File(dir, "account.txt");
 				account.createNewFile();
-				PrintWriter pr = new PrintWriter(
-						new BufferedWriter(new FileWriter("Data/Users/" + user + "/account.txt", false)));
-				pr.println(pword);
-				pr.flush();
-				pr.close();
+				User newUser = new User(user);
+				writeObject(newUser, "Data/Users/" + user + "/account.txt");
+				userObj = newUser;
 			} catch (Exception e) {
 				System.out.println("IO error: " + e.getStackTrace());
 			}
 
 			return true;
 		}
+	}
+	
+	public void writeObject(Object obj, String filepath) {
+		try {
+	         FileOutputStream fOut = new FileOutputStream(filepath);
+	         ObjectOutputStream objOut = new ObjectOutputStream(fOut);
+	         objOut.writeObject(obj);
+	         objOut.close();
+	         fOut.close();
+	      } catch (IOException e) {
+	         e.printStackTrace();
+	      }
+	}
+	
+	public User readUser(String filepath) {
+		try {
+			User usr;
+			FileInputStream fIn = new FileInputStream(filepath);
+			ObjectInputStream objIn = new ObjectInputStream(fIn);
+			usr = (User) objIn.readObject();
+			fIn.close();
+			objIn.close();
+			return usr;
+		} catch (IOException e){
+			JOptionPane.showMessageDialog(null, "The user data is corrupt");
+		} catch (ClassNotFoundException e) {
+			e.printStackTrace();
+		} catch (ClassCastException e) {
+			e.printStackTrace();
+		}
+		return null;
 	}
 }
